@@ -91,6 +91,11 @@ Notice that the `Car` class does not override the default methods declared in
 the `Vehicle` interface. This shows how we can have a class in a codebase and
 not have it implement the default methods.
 
+For a visual of the relationship between `Vehicle` and `Car`, consider the
+following UML diagram:
+
+![uml-vehicle-interface-car-implementing-class](https://curriculum-content.s3.amazonaws.com/java-mod-3/static-default-methods-interfaces/uml-vehicle-car-default-methods.PNG)
+
 Consider the driver class below to help show us how default methods work in
 interfaces:
 
@@ -177,11 +182,11 @@ default methods as the `Vehicle` interface:
 public interface Alarm {
 
     default String turnAlarmOn() {
-        return "Turning the alarm on.";
+        return "Turning the alarm on from the Alarm interface.";
     }
 
     default String turnAlarmOff() {
-        return "Turning the alarm off.";
+        return "Turning the alarm off from the Alarm interface.";
     }
 }
 ```
@@ -218,6 +223,10 @@ public class Car implements Vehicle, Alarm {
 }
 ```
 
+We can implement multiple interfaces in Java by listing the interface names
+after the `implements` keyword by using commas (`,`) to separate each interface
+the class should implement.
+
 But there is an issue now with our `Car` class. If we try to compile it, we get
 the following error:
 
@@ -227,11 +236,12 @@ java: types org.example.Vehicle and org.example.Alarm are incompatible;
 ```
 
 What we have just run into is the infamous **diamond problem**. The diamond
-problem is when a class inherits two methods that are the same. In this case,
-the compiler isn't sure which `turnAlarmOff()` method the `Car` should call
-since it implements both the `Vehicle` interface and the `Alarm` interface.
-This problem is actually why multiple inheritance is not supported in Java.
-Unfortunately, it comes back to us with default methods and interfaces.
+problem is when a class inherits two methods that have the same method
+signature. In this case, the compiler isn't sure which `turnAlarmOff()` method
+the `Car` should call since it implements both the `Vehicle` interface and the
+`Alarm` interface. This problem is actually why multiple inheritance is not
+supported in Java. Unfortunately, it comes back to us when it comes to default
+methods and interfaces.
 
 Okay, so how do we solve it?
 
@@ -279,6 +289,10 @@ public class Car implements Vehicle, Alarm {
 }
 ```
 
+Let's look at an updated UML diagram now:
+
+![car-implements-both-vehicle-and-alarm-interfaces](https://curriculum-content.s3.amazonaws.com/java-mod-3/static-default-methods-interfaces/uml-vehicle-alarm-car-default-methods.PNG)
+
 Now when we run our `Main` driver class, it will call the overridden methods
 here in the `Car` class instead of the default methods, just like how we handled
 abstract methods in interfaces. The output now would look like this:
@@ -289,6 +303,59 @@ Cherokee
 Turning the car alarm on for Jeep Cherokee
 Turning the car alarm off for Jeep Cherokee
 ```
+
+### Using the Default Method Implementations
+
+While we still have to override both the `turnAlarmOn()` and `turnAlarmOff()`
+methods in the `Car` class since it implements two interfaces with two default
+methods that each have the same signature, we can also choose to use one or
+both of those implementations.
+
+For example, say we still want to have the `Car` class call the `turnAlarmOff()`
+default method from the `Alarm` interface. To do so, we can invoke the
+overridden method through the use of the keyword `super`. This provides us
+access to the superclass or parent class' methods.
+
+```java
+    @Override
+    public String turnAlarmOff() {
+        return Alarm.super.turnAlarmOff();
+    }
+```
+
+
+If we look in the UML diagram from the above section, we can see that `Car`
+implements the `Alarm` interface; therefore, it would be valid to use the `super`
+keyword to call the `turnAlarmOff()` method from the `Alarm` interface. Also
+note that since the `Car` class implements two interfaces, we have to specify
+which `turnAlarmOff()` method we are referring to when using the `super`
+keyword. This is why we use the syntax `Alarm.super.turnAlarmOff();`
+
+If we run the `Main` driver class again, we'll get the following output now in
+the console:
+
+```text
+Jeep
+Cherokee
+Turning the car alarm on for Jeep Cherokee
+Turning the alarm off from the Alarm interface.
+228
+```
+
+Similarly, we could also call the `Vehicle` default methods from the `Car`
+class the same way. Let's say we want to have the `Car` class call the
+`turnAlarmOn()` default method from the `Vehicle` interface:
+
+```java
+    @Override
+    public String turnAlarmOn() {
+        return Vehicle.super.turnAlarmOn();
+    }
+```
+
+Since the `Car` class implements the `Vehicle` interface, as shown in the code
+and the UML above, it is valid to use the `super` keyword here too to call the
+`Vehicle` interface's `turnAlarmOn()` default method.
 
 ## Static Methods in Interfaces
 
@@ -318,9 +385,15 @@ public interface Vehicle {
 }
 ```
 
+Consider the following updated UML diagram to include this static method:
+
+![updated-uml-with-static-method](https://curriculum-content.s3.amazonaws.com/java-mod-3/static-default-methods-interfaces/uml-vehicle-alarm-car-static-method.PNG)
+
 A static method can be defined in an interface the same way it can be defined in
 a regular class. Notice with a static method, we also write the implementation
-within the interface as well.
+within the interface as well; however, static methods cannot be overridden.
+Therefore, the `Car` class could not override the `getHorsePower()` method since
+it is declared as static in the `Vehicle` interface.
 
 Static methods in interfaces were introduced to increase cohesion. Per the
 Javadocs, "This makes it easier for you to organize helper methods in your
