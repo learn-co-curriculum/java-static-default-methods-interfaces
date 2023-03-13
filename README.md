@@ -314,7 +314,7 @@ both of those implementations.
 For example, say we still want to have the `Car` class call the `turnAlarmOff()`
 default method from the `Alarm` interface. To do so, we can invoke the
 overridden method through the use of the keyword `super`. This provides us
-access to the superclass or parent class' methods.
+access to the superclass or parent interface's methods.
 
 ```java
     @Override
